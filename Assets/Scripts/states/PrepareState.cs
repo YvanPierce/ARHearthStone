@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Assets.Scripts.states
+{
+    /*
+     * 准备状态
+     */ 
+    public class PrepareState : IAttackState
+    {
+        /*
+         * 初始化场上对阵信息
+         * 转到空白状态
+         */ 
+        public void handleState(God god, string input = "")
+        {
+            god.init();
+            god.setState(God.emptyState);
+        }
+
+        public void update(God god)
+        {
+            handleState(god);
+        }
+    }
+}
