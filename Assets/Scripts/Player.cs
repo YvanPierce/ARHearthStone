@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
     PosContainer poscontainer;
     public Hero SelectedHero1 = null;
     public Hero SelectedHero2 = null;
-    public Card SelectedCard = null;
+    public KeyValuePair<int, Card> SelectedCard;
     public GameObject hitobject = null;
 
     // 新加字段(选中的召唤师)
@@ -41,12 +41,12 @@ public class Player : MonoBehaviour {
     /// <summary>
     /// 牌库，对局开始时打乱卡组获得
     /// </summary>
-    private Stack<Card> CardStack;
+    private Stack<KeyValuePair<int, Card>> CardStack;
 
     /// <summary>
     /// 手牌，玩家从牌库中获得
     /// </summary>
-    public List<Card> CardsInHand;
+    public List<KeyValuePair<int, Card>> CardsInHand;
 
     /// <summary>
     /// 卡牌类Card对应的游戏物体
@@ -62,21 +62,22 @@ public class Player : MonoBehaviour {
     /// 英雄Hero类实例对应的游戏物体
     /// </summary>
     private List<GameObject> HeroesOnCourt_Object;
-
-
+    
 
     // Use this for initialization
     void Start () {
         poscontainer = this.GetComponent<PosContainer>();
-        CardStack = new Stack<Card>();
-        CardsInHand = new List<Card>();
+        CardStack = new Stack<KeyValuePair<int, Card>>();
+        CardsInHand = new List<KeyValuePair<int, Card>>(5);
         CardsInHand_Obejct = new List<GameObject>();
         HeroesOnCourt = new List<Hero>();
         HeroesOnCourt_Object = new List<GameObject>();
 
         Card FirstCard = new Card("FirstHero", 0, 300, 300);
-        CardStack.Push(FirstCard);
 
+        int times = 100;
+        while (times-- >= 0)
+            CardStack.Push(new KeyValuePair<int, Card>(100-times, FirstCard));
 	}
 	
 	// Update is called once per frame
@@ -105,24 +106,53 @@ public class Player : MonoBehaviour {
     /// </summary>
     /// <param name="card_gobj">游戏场景中的卡牌物体</param>
     /// <returns></returns>
-    public Card GetCard(GameObject card_gobj)
+    public KeyValuePair<int,Card> GetCard(GameObject card_gobj)
     {
         int index = 0;
         for (; index < CardsInHand_Obejct.Count; index++)
-            if (CardsInHand_Obejct[index] == card_gobj)
+            if (CardsInHand_Obejct[index].name == card_gobj.name)
+            {
+                Debug.Log("In GetCard(), 返回物体名字为" + CardsInHand_Obejct[index].name);
                 return CardsInHand[index];
-        return null;
+            }
+        return new KeyValuePair<int, Card>(0,null);
     }
 
     /// <summary>
     /// 使用卡牌，根据卡牌类型不同决定是召唤英雄还是施展卡牌效果，使用后卡牌从手牌中删去
     /// </summary>
     /// <param name="card">使用的那一张卡牌</param>
-    public void UseCard(Card card, Vector3 HeroSpawnPos)
+    public void UseCard(KeyValuePair<int, Card> card, Vector3 HeroSpawnPos)
     {
-        SummonHero( card.InitHero(), HeroSpawnPos);
-        GameObject cardObject = this.getCardObject(this.SelectedCard);
-        Destroy(cardObject, .5f);
+        int PosInHand = 0; // 当前使用卡牌在手牌中的位置
+        for (int i = 0; i < 5; i++)
+        {
+            if (card.Key == CardsInHand[i].Key)
+            {
+                PosInHand = i;
+                break;
+            }
+        }
+
+        SummonHero(card.Value.InitHero(), HeroSpawnPos);
+        DestoryCardObject(card);
+        
+        if (PosInHand != CardsInHand.Count - 1) // 使用的不是最尾那张手牌，则将所有手牌前移
+        {
+            for (int i = PosInHand; i < CardsInHand.Count - 1; i++)
+                CardsInHand[i] = CardsInHand[i + 1];
+        }
+        CardsInHand.RemoveAt(CardsInHand.Count - 1);
+        RefreshCardPos();
+
+    }
+
+    void RefreshCardPos()
+    {
+        for (int i = 0; i < CardsInHand_Obejct.Count; i++)
+        {
+            CardsInHand_Obejct[i].transform.position = poscontainer.CardsPos[i+1];
+        }
     }
 
     /// <summary>
@@ -182,15 +212,19 @@ public class Player : MonoBehaviour {
     /// </summary>
     public void DrawCard()
     {
+        int times = 0;
         Debug.Log("Draw Card");
-        Card CardToDraw = CardStack.Peek();
-        CardStack.Pop();
-        CardsInHand.Add(CardToDraw);
+        while (++times < 3 && CardsInHand.Count < 5)
+        {
+            KeyValuePair<int,Card> CardToDraw = CardStack.Peek();
+            CardStack.Pop();
+            CardsInHand.Add(CardToDraw);
 
-        GameObject card = GameObject.Instantiate(CardToDraw.CardModel, poscontainer.CardsPos[0], Quaternion.identity);
-        CardsInHand_Obejct.Add(card);
-        card.name = "HeroCard1";
-        card.tag = "Card";
+            GameObject card = GameObject.Instantiate(CardToDraw.Value.CardModel, poscontainer.CardsPos[CardsInHand.Count], Quaternion.identity);
+            CardsInHand_Obejct.Add(card);
+            card.name = "HeroCard" + CardsInHand.Count.ToString();
+            card.tag = "Card";
+        }
     }
 
     /// <summary>
@@ -277,12 +311,24 @@ public class Player : MonoBehaviour {
     /*
      * 临时方法
      */
-     public GameObject getCardObject(Card card)
-    {
+     public GameObject getCardObject(KeyValuePair<int, Card> card)
+     {
         int index = 0;
         for (; index < CardsInHand.Count; index++)
-            if (CardsInHand[index] == card)
+            if (CardsInHand[index].Key == card.Key)
                 return CardsInHand_Obejct[index];
         return null;
-    } 
+     }
+    
+    public bool DestoryCardObject(KeyValuePair<int, Card> card) {
+        int index = 0;
+        for (; index < CardsInHand.Count; index++)
+            if (CardsInHand[index].Key == card.Key)
+            {
+                Destroy(CardsInHand_Obejct[index], .5f);
+                CardsInHand_Obejct.RemoveAt(index);
+                return true;
+            }
+        return false;
+    }
 }

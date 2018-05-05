@@ -46,7 +46,7 @@ public class God : MonoBehaviour {
         targetSelectedState = new TargetSelectedState();
         cardCastedState = new CardCastedState();
         gameOverState = new GameOverState();
-
+        
         // 设置初始状态
         currentState = prepareState;
     }
@@ -74,12 +74,22 @@ public class God : MonoBehaviour {
         PlayerRound = 0;
         currentplayer = playeryellow;
         currentoponent = playerred;
+        
+        GameObject redcardslots = GameObject.Find("RedCardSlots");
+        Transform[] rcs = redcardslots.GetComponentsInChildren<Transform>();
+        GameObject yellowcardslots = GameObject.Find("YellowCardSlots");
+        Transform[] ycs = yellowcardslots.GetComponentsInChildren<Transform>();
 
-        yellowposcontainer.CardsPos.Add(new Vector3(-.32f, -5.9f, -10.8f));
+        for (int i = 0; i < rcs.Length; i++)
+        {
+            redposcontainer.CardsPos.Add(rcs[i].position);
+            yellowposcontainer.CardsPos.Add(ycs[i].position);
+        }
+
         yellowposcontainer.HeroPos.Add(new Vector3(-.14f, -2.53f, -10.97f));
 
         redposcontainer.HeroPos.Add(new Vector3(0, 3.54f, -10.34f));
-        redposcontainer.CardsPos.Add(new Vector3(-.32f, 5.76f, -9.41f));
+        currentplayer.DrawCard();
     }
 
     public bool ExchangeRound()
@@ -98,6 +108,7 @@ public class God : MonoBehaviour {
             currentplayer = playeryellow;
             currentoponent = playerred;
         }
+        currentplayer.DrawCard();
         ClearSelect();
         return true;
     }
@@ -107,12 +118,12 @@ public class God : MonoBehaviour {
         currentplayer.SelectState = "Select Nothing";
         currentplayer.SelectedHero1 = null;
         currentplayer.SelectedHero2 = null;
-        currentplayer.SelectedCard = null;
+        currentplayer.SelectedCard = new KeyValuePair<int, Card>(-1,null);
         currentplayer.selectedPlayer = null;
         currentoponent.SelectState = "Select Nothing";
         currentoponent.SelectedHero1 = null;
         currentoponent.SelectedHero2 = null;
-        currentoponent.SelectedCard = null;
+        currentoponent.SelectedCard = new KeyValuePair<int, Card>(-1, null);
         currentoponent.selectedPlayer = null;
     }
 

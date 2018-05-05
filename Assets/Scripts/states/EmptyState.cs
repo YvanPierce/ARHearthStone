@@ -18,8 +18,11 @@ namespace Assets.Scripts.states
                 god.setState(God.attackPrepareState);
             } else if ("card" == input)     // 进入卡牌选择状态
             {
-                god.currentplayer.DrawCard();
+                //god.currentplayer.DrawCard();
                 god.setState(God.cardSelectedState);
+            } else if (input == "targetselect")
+            {
+                god.setState(God.targetSelectedState);
             }
         }
 
@@ -28,10 +31,6 @@ namespace Assets.Scripts.states
             if (Input.GetKeyDown(KeyCode.Space))    // 空格键结束回合
             {
                 handleState(god, "exchange");
-            } else if (Input.GetKeyDown(KeyCode.A))     // 点击一张卡（暂用A键代替）
-            {
-
-                handleState(god, "card");
             } else if (Input.GetMouseButtonDown(0))     // 检测点击事件
             {
                 RaycastHit hitInfo = new RaycastHit();
@@ -41,6 +40,7 @@ namespace Assets.Scripts.states
                 {
                     Debug.Log("Hit " + hitInfo.transform.gameObject.name);
                     god.currentplayer.hitobject = hitInfo.transform.gameObject;
+                    GameObject hitojbect = god.currentplayer.hitobject;
 
                     if (god.currentplayer.hitobject.tag == "Hero")      // 选中英雄
                     {
@@ -52,9 +52,12 @@ namespace Assets.Scripts.states
 
                             handleState(god, "attack");     // 跳转到攻击准备状态
                         }
+                    } else if (hitojbect.tag == "Card")
+                    {
+                        KeyValuePair<int, Card> cardinstance = god.currentplayer.GetCard(hitojbect);
+                        god.currentplayer.SelectedCard = cardinstance;
+                        handleState(god, "targetselect");
                     }
-
-                    
                 }
 
             }
