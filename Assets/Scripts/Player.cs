@@ -73,7 +73,7 @@ public class Player : MonoBehaviour {
         HeroesOnCourt = new List<Hero>();
         HeroesOnCourt_Object = new List<GameObject>();
 
-        Card FirstCard = new Card("FirstHero", 0, 300, 300);
+        Card FirstCard = new Card("FirstHero", 0, 300, 300, "");
 
         int times = 100;
         while (times-- >= 0)

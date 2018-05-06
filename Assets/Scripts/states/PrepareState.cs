@@ -13,10 +13,12 @@ namespace Assets.Scripts.states
         /*
          * 初始化场上对阵信息
          * 转到空白状态
-         */ 
+         */
+        bool Init = false;
+
         public void handleState(God god, string input = "")
         {
-            god.init();
+
             god.setState(God.emptyState);
         }
 

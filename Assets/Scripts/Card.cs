@@ -13,7 +13,7 @@ public class Card {
     private string Name;
 
     /// <summary>
-    /// 卡牌类型：英雄牌/效果牌
+    /// 卡牌类型：英雄牌/效果牌 0表示英雄 1表示效果
     /// </summary>
     private int CardType;
 
@@ -42,7 +42,9 @@ public class Card {
     /// </summary>
     private Effect HeroEffect;
 
-    public Card(string name, int cost, int herohp, int herodamage)
+    private string CardDescription;
+
+    public Card(string name, int cost, int herohp, int herodamage, string carddes)
     {
         Name = name;
         Cost = cost;
@@ -53,6 +55,7 @@ public class Card {
         CardModel = container.CardModel;
         // 临时属性
         CardType = 0;
+        CardDescription = carddes;
     }
 
     private void OnMouseDown()

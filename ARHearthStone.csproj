@@ -295,6 +295,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Card.cs" />
+    <Compile Include="Assets\Scripts\CardsManager.cs" />
+    <Compile Include="Assets\Scripts\CSVReader.cs" />
     <Compile Include="Assets\Scripts\Effect.cs" />
     <Compile Include="Assets\Scripts\God.cs" />
     <Compile Include="Assets\Scripts\Hero.cs" />

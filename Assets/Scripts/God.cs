@@ -49,6 +49,8 @@ public class God : MonoBehaviour {
         
         // 设置初始状态
         currentState = prepareState;
+
+        init();
     }
 	
 	// Update is called once per frame
@@ -90,6 +92,10 @@ public class God : MonoBehaviour {
 
         redposcontainer.HeroPos.Add(new Vector3(0, 3.54f, -10.34f));
         currentplayer.DrawCard();
+
+        CSVReader.GetInstance().loadFile(Application.dataPath + "/CardsConfigs", "Cards.csv"); // 读取存储卡牌描述的CSV文件
+        CardsManager.GetInstance().SetCardsData(CSVReader.GetInstance().arrayData); // 将读取到的数据传入卡牌管理器
+        CardsManager.GetInstance().InstansitateCards(); // 卡牌管理器根据读取的数据来实例化卡牌
     }
 
     public bool ExchangeRound()
