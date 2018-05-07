@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Hero {
     Player theplayer;
-    ModelContainer container;
     public GameObject HeroModel;
 
     /// <summary>
@@ -48,15 +47,14 @@ public class Hero {
     /// </summary>
     private int MaxAttackCount;
 
-    public Hero(string name, int maxhp, int damage)
+    public Hero(string name, int maxhp, int damage, GameObject heromodel)
     {
         Name = name;
         MaxHP = maxhp;
         Damage = damage;
         HP = maxhp;
         theplayer = GameObject.Find("Main Camera").GetComponent<Player>();
-        container = GameObject.Find("Main Camera").GetComponent<ModelContainer>();
-        HeroModel = container.HeroModel;
+        HeroModel = heromodel;
     }
 
     /// <summary>

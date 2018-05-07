@@ -4,8 +4,17 @@ using UnityEngine;
 
 public class Card {
     Player theplayer;
-    ModelContainer container;
+    
+
+    /// <summary>
+    /// 卡牌的模型
+    /// </summary>
     public GameObject CardModel;
+
+    /// <summary>
+    /// 若是英雄牌，召唤出的英雄的模型
+    /// </summary>
+    public GameObject HeroModel;
 
     /// <summary>
     /// 卡牌名称
@@ -44,18 +53,30 @@ public class Card {
 
     private string CardDescription;
 
-    public Card(string name, int cost, int herohp, int herodamage, string carddes)
+    public Card(string name, int cost, int herohp, int herodamage, string carddes, GameObject cardmodel, GameObject heromodel)
     {
         Name = name;
         Cost = cost;
         HeroHP = herohp;
         HeroDamage = herodamage;
-        theplayer = GameObject.Find("Main Camera").GetComponent<Player>();
-        container = GameObject.Find("Main Camera").GetComponent<ModelContainer>();
-        CardModel = container.CardModel;
+        CardModel = cardmodel;
+        HeroModel = heromodel;
         // 临时属性
         CardType = 0;
         CardDescription = carddes;
+    }
+
+    public Card(Card c)
+    {
+        Name = c.Name;
+        Cost = c.Cost;
+        HeroHP = c.HeroHP;
+        HeroDamage = c.HeroDamage;
+        CardModel = c.CardModel;
+        HeroModel = c.HeroModel;
+        // 临时属性
+        CardType = c.CardType;
+        CardDescription = c.CardDescription;
     }
 
     private void OnMouseDown()
@@ -76,7 +97,7 @@ public class Card {
     /// <returns>英雄实例，用于被玩家召唤</returns>
     public Hero InitHero()
     {
-        Hero hero = new Hero(Name, HeroHP, HeroDamage);
+        Hero hero = new Hero(Name, HeroHP, HeroDamage, HeroModel);
         return hero;
     }
 

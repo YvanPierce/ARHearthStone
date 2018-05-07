@@ -9,6 +9,8 @@ public class CardsManager {
 
     public List<Card> CardsInGame;
 
+    public List<ModelContainer> CardModel;
+
     static CardsManager CM;
 
     private CardsManager()   //单例，构造方法为私有
@@ -45,8 +47,16 @@ public class CardsManager {
             string carddescription = CardDescription[3];
             int cardhp = Int32.Parse(CardDescription[4]);
             int carddamage = Int32.Parse(CardDescription[5]);
+            string cardmodelpath = CardDescription[7];
+            string heromodelpath = CardDescription[8];
+            GameObject cardmodel = (GameObject)Resources.Load(cardmodelpath);
+            GameObject heromodel = (GameObject)Resources.Load(heromodelpath);
 
-            Card newcard = new Card(cardname, cardcost, cardhp, carddamage, carddescription);
+            Card newcard = new Card(cardname, cardcost, cardhp, carddamage, carddescription, cardmodel, heromodel);
+
+
+
+            ModelContainer newcardmodel = new ModelContainer(cardmodel, heromodel);
 
             CardsInGame.Add(newcard);
         }

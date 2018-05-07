@@ -2041,7 +2041,6 @@ GameObject:
   - component: {fileID: 1721624116}
   - component: {fileID: 1721624115}
   - component: {fileID: 1721624114}
-  - component: {fileID: 1721624119}
   - component: {fileID: 1721624118}
   m_Layer: 0
   m_Name: Main Camera
@@ -2132,19 +2131,6 @@ MonoBehaviour:
   currentoponent: {fileID: 0}
   redposcontainer: {fileID: 0}
   yellowposcontainer: {fileID: 0}
---- !u!114 &1721624119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1721624113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a6009610360f30408dc12bffa642ff5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CardModel: {fileID: 1387026711315708, guid: ba023c8a08cfd45488f57fbace75687d, type: 2}
-  HeroModel: {fileID: 1236031128047106, guid: d7d7d7a102711aa4ba2cd53cc3a11447, type: 2}
 --- !u!1 &1825104367
 GameObject:
   m_ObjectHideFlags: 0

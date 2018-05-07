@@ -34,6 +34,7 @@ public class God : MonoBehaviour {
     public static TargetSelectedState targetSelectedState;
     public static CardCastedState cardCastedState;
     public static GameOverState gameOverState;
+
 	// Use this for initialization
 	void Start () {
         // 静态状态初始化
@@ -88,14 +89,16 @@ public class God : MonoBehaviour {
             yellowposcontainer.CardsPos.Add(ycs[i].position);
         }
 
-        yellowposcontainer.HeroPos.Add(new Vector3(-.14f, -2.53f, -10.97f));
 
-        redposcontainer.HeroPos.Add(new Vector3(0, 3.54f, -10.34f));
-        currentplayer.DrawCard();
 
-        CSVReader.GetInstance().loadFile(Application.dataPath + "/CardsConfigs", "Cards.csv"); // 读取存储卡牌描述的CSV文件
+        CSVReader.GetInstance().loadFile(Application.dataPath + "/CardsConfigs", "卡组csv.csv"); // 读取存储卡牌描述的CSV文件
         CardsManager.GetInstance().SetCardsData(CSVReader.GetInstance().arrayData); // 将读取到的数据传入卡牌管理器
         CardsManager.GetInstance().InstansitateCards(); // 卡牌管理器根据读取的数据来实例化卡牌
+
+
+        currentplayer.Shuffle();
+        currentoponent.Shuffle();
+        currentplayer.DrawCard();
     }
 
     public bool ExchangeRound()

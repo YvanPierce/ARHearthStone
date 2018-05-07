@@ -73,17 +73,25 @@ public class Player : MonoBehaviour {
         HeroesOnCourt = new List<Hero>();
         HeroesOnCourt_Object = new List<GameObject>();
 
-        Card FirstCard = new Card("FirstHero", 0, 300, 300, "");
-
-        int times = 100;
-        while (times-- >= 0)
-            CardStack.Push(new KeyValuePair<int, Card>(100-times, FirstCard));
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
 	}
+
+
+    /// <summary>
+    /// 假装洗牌：对局开始时由God为对阵双方洗牌（初始化双方的牌库）
+    /// </summary>
+    public void Shuffle()
+    {
+        Card FirstCard = new Card(CardsManager.GetInstance().CardsInGame[7]); // 酸性沼泽怪
+
+        int times = 100;
+        while (times-- >= 0)
+            CardStack.Push(new KeyValuePair<int, Card>(100 - times, FirstCard));
+    }
 
 
 

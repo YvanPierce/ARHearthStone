@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ModelContainer : MonoBehaviour {
+public class ModelContainer {
     public GameObject CardModel;
     public GameObject HeroModel;
 	// Use this for initialization
@@ -14,4 +14,10 @@ public class ModelContainer : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public ModelContainer(GameObject cm, GameObject hm)
+    {
+        CardModel = cm;
+        HeroModel = hm;
+    }
 }
