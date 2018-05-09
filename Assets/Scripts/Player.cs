@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-    public string SelectState = "Selected Nothing";
     PosContainer poscontainer;
     public Hero SelectedHero1 = null;
     public Hero SelectedHero2 = null;
@@ -12,26 +11,29 @@ public class Player : MonoBehaviour {
 
     // 新加字段(选中的召唤师)
     public Player selectedPlayer = null;
-    
+
+    // 召唤师对应的model
+    private GameObject playerObject = null;
+
     /// <summary>
     /// 当前生命值
     /// </summary>
-    private int HP = 10;
+    public int HP = 10;
 
     /// <summary>
     /// 当前能量值
     /// </summary>
-    private int MP;
+    public int MP;
 
     /// <summary>
     /// 最大生命值
     /// </summary>
-    private int MaxHP = 10;
+    public int MaxHP = 10;
 
     /// <summary>
     /// 最大能量值
     /// </summary>
-    private int MaxMP;
+    public int MaxMP;
 
     /// <summary>
     /// 卡组，由玩家在对局外自行组合
@@ -73,6 +75,8 @@ public class Player : MonoBehaviour {
         HeroesOnCourt = new List<Hero>();
         HeroesOnCourt_Object = new List<GameObject>();
 
+        MaxMP = 0;
+        MP = 0;
 	}
 	
 	// Update is called once per frame
@@ -80,6 +84,11 @@ public class Player : MonoBehaviour {
 
 	}
 
+    // 设置召唤师模型
+    public void setPlayerObject(GameObject gameObject)
+    {
+        this.playerObject = gameObject;
+    }
 
     /// <summary>
     /// 假装洗牌：对局开始时由God为对阵双方洗牌（初始化双方的牌库）
@@ -171,19 +180,14 @@ public class Player : MonoBehaviour {
     public void SummonHero(Hero hero, Vector3 SpawnPos)
     {
         GameObject SummonedHero = GameObject.Instantiate(hero.HeroModel, SpawnPos, Quaternion.identity);
+        // 将hero的Model由预制替换为场上的GameObject
+        hero.HeroModel = SummonedHero;
         HeroesOnCourt_Object.Add(SummonedHero);
         HeroesOnCourt.Add(hero);
         SummonedHero.name = "SummonedHero1";
         SummonedHero.tag = "Hero";
     }
 
-    /// <summary>
-    /// 玩家结束回合，导演进行回合结算后，将出牌权转移给另一玩家
-    /// </summary>
-    public void EndTurn()
-    {
-        
-    }
 
     /// <summary>
     /// 修改玩家当前HP，注意不能溢出上下界，返回是否修改成功
@@ -192,7 +196,10 @@ public class Player : MonoBehaviour {
     /// <returns></returns>
     public bool AlterHP(int hp)
     {
-        return false;
+        this.HP += hp;
+        if (this.HP < 0) this.HP = 0;
+        if (this.HP > MaxHP) this.HP = MaxHP;
+        return true;
     }
 
     /// <summary>
@@ -202,7 +209,10 @@ public class Player : MonoBehaviour {
     /// <returns></returns>
     public bool AlterMP(int mp)
     {
-        return false;
+        this.MP += mp;
+        if (this.MP < 0) this.MP = 0;
+        if (this.MP > MaxMP) this.MP = MaxMP;
+        return true; 
     }
 
     /// <summary>
@@ -212,7 +222,7 @@ public class Player : MonoBehaviour {
     /// <returns></returns>
     public bool EnoughMP(int mp)
     {
-        return false;
+        return this.MP >= mp;
     }
 
     /// <summary>
@@ -262,9 +272,21 @@ public class Player : MonoBehaviour {
     /// <returns></returns>
     public bool CommandHeroAttackHero(Hero Attacker, Hero target)
     {
-        Debug.Log("英雄" + Attacker.GetName() + "向" + "英雄" + target.GetName() + "发起攻击");
+        if (0 == Attacker.AttackCount)  // 无法攻击
+        {
+            Debug.Log("本回合" + Attacker.GetName() + "无法攻击");
+            return false;
+        } else      // 开始攻击
+        {
+            Debug.Log("英雄" + Attacker.GetName() + "向英雄" +target.GetName() + "发起攻击");
+            Vector3 endPos = target.HeroModel.transform.position;
+            Vector3 startPos = Attacker.HeroModel.transform.position;
 
-        return false;
+            Attack attack = Attacker.HeroModel.GetComponent<Attack>();
+            attack.go(startPos, endPos);
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -275,9 +297,22 @@ public class Player : MonoBehaviour {
     /// <returns></returns>
     public bool CommandHeroAttackPlayer(Hero Attacker, Player target)
     {
+        if (0 == Attacker.AttackCount)  // 无法攻击
+        {
+            Debug.Log("本回合" + Attacker.GetName() + "无法攻击");
+            return false;
+        }
+        else      // 开始攻击
+        {
+            Debug.Log("英雄" + Attacker.GetName() + "向"+ target.playerObject.ToString() + "召唤师发起攻击");
+            Vector3 endPos = target.playerObject.transform.position;
+            Vector3 startPos = Attacker.HeroModel.transform.position;
 
-        Debug.Log("英雄" + Attacker.GetName() + "向" + "召唤师发起攻击");
-        return false;
+            Attack attack = Attacker.HeroModel.GetComponent<Attack>();
+            attack.go(startPos, endPos);
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -300,21 +335,6 @@ public class Player : MonoBehaviour {
         return false;
     }
 
-    /*
-     * 临时方法
-     */
-    public int getHp()
-    {
-        return HP;
-    }
-
-     /*
-     * 临时方法
-     */
-    public int getMp()
-    {
-        return MP;
-    }
 
     /*
      * 临时方法
@@ -338,5 +358,60 @@ public class Player : MonoBehaviour {
                 return true;
             }
         return false;
+    }
+
+    /**
+     * 本方英雄死亡时调用的方法
+     * 
+     */ 
+    public void DestroyHero(Hero hero)
+    {
+        for (int index = 0; index < HeroesOnCourt.Count; index++)
+        {
+            // 找到场上的模型
+            if (HeroesOnCourt[index] == hero)
+            {
+                // 移除模型
+                Destroy(HeroesOnCourt_Object[index], .5f);
+                HeroesOnCourt_Object.RemoveAt(index);
+                // 移除Hero
+                HeroesOnCourt.RemoveAt(index);
+                break;
+            }
+        }
+    }
+
+    /**
+     * 回合开始时更新Heroes攻击次数 
+     */
+    public void updateAttackCount()
+    {
+        for (int index = 0; index < HeroesOnCourt.Count; index++)
+        {
+            if (0 == HeroesOnCourt[index].MaxAttackCount)
+            {
+                HeroesOnCourt[index].MaxAttackCount = 1;
+            }
+            HeroesOnCourt[index].AttackCount = HeroesOnCourt[index].MaxAttackCount;
+        }
+    }
+
+    /**
+     * 回合开始时更新MP
+     */
+     public void updateMaxMP()
+    {
+        // 能量填充
+        if (MaxMP < 10) MaxMP++;
+        AlterMP(MaxMP);
+        Debug.Log(this.ToString() + "MP恢复：" + MP);
+    }
+
+    /**
+     * 获取HP
+     */ 
+     public int getHp()
+    {
+        return HP;
     }
 }

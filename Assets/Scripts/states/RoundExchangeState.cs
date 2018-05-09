@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace Assets.Scripts.states
 {
@@ -15,6 +16,10 @@ namespace Assets.Scripts.states
         {
             god.ExchangeRound();
             god.setState(God.emptyState);
+            // MP填充
+            god.currentplayer.updateMaxMP();
+            // 攻击次数填充
+            god.currentplayer.updateAttackCount();
         }
 
         public void update(God god)

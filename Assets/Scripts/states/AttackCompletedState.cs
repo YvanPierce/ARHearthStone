@@ -7,18 +7,12 @@ namespace Assets.Scripts.states
 {
     public class AttackCompletedState : IAttackState
     {
+        // 标记位，标记是否为首次调用update
+        private bool flag = true;
+
+        // 状态切换
         public void handleState(God god, string input = "")
-        {
-            if (null == god.currentplayer.SelectedHero2)
-                // 攻击对方召唤师
-            {
-                god.currentplayer.CommandHeroAttackPlayer(god.currentplayer.SelectedHero1, god.currentplayer.selectedPlayer);
-            } else
-                // 攻击对方英雄
-            {
-                god.currentplayer.CommandHeroAttackHero(god.currentplayer.SelectedHero1, god.currentplayer.SelectedHero2);
-            }
-            
+        {   
             if (god.isOver())   // 结束
             {
                 god.setState(God.gameOverState);
@@ -27,11 +21,39 @@ namespace Assets.Scripts.states
                 god.ClearSelect();
                 god.setState(God.emptyState);
             }
+            flag = true;
         }
 
         public void update(God god)
         {
-            handleState(god);
+            if (flag)   // 第一次进入update：开始攻击
+            {
+                attack();
+                flag = false;
+            } else      // 攻击已开始，等待攻击过程结束，切换状态
+            {
+                if (god.isFree) handleState(god);
+            }
         }
+
+        /**
+         * 调用player的攻击方法
+         */ 
+        public void attack()
+        {
+            if (null == God.getInstance().currentplayer.SelectedHero2)
+            // 攻击召唤师
+            {
+                God.getInstance().currentplayer.CommandHeroAttackPlayer(
+                    God.getInstance().currentplayer.SelectedHero1, God.getInstance().currentplayer.selectedPlayer);
+            }
+            else
+            // 攻击对方英雄
+            {
+                God.getInstance().currentplayer.CommandHeroAttackHero(
+                    God.getInstance().currentplayer.SelectedHero1, God.getInstance().currentplayer.SelectedHero2);
+            }
+        }
+
     }
 }
