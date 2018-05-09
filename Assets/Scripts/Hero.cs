@@ -39,13 +39,13 @@ public class Hero {
     /// <summary>
     /// 本回合可攻击次数，每回合重置
     /// </summary>
-    private int AttackCount;
+    public int AttackCount;
 
 
     /// <summary>
     /// 每回合最大可攻击次数，固有属性/通过特效改变
     /// </summary>
-    private int MaxAttackCount;
+    public int MaxAttackCount;
 
     public Hero(string name, int maxhp, int damage, GameObject heromodel)
     {
@@ -55,6 +55,10 @@ public class Hero {
         HP = maxhp;
         theplayer = GameObject.Find("Main Camera").GetComponent<Player>();
         HeroModel = heromodel;
+
+        // 出生回合无法攻击
+        MaxAttackCount = 0;
+        AttackCount = MaxAttackCount;
     }
 
     /// <summary>
@@ -71,7 +75,18 @@ public class Hero {
     /// <param name="target">攻击目标</param>
     public void Attack(Hero target)
     {
-
+        // 扣除攻击次数
+        AttackCount--;
+        Debug.Log(this.GetName() + "的攻击力：" + Damage + ", 对方" + target.GetName() + "的HP:" + target.GetHp());
+        if (target.ReduceHp(this.Damage))   // 击杀目标
+        {
+            Debug.Log("Hero" + target.GetName() + "死亡");
+            // 由对方player摧毁hero模型
+            God.getInstance().currentoponent.DestroyHero(target);
+        } else // 未击杀
+        {
+            Debug.Log("Hero" + target.GetName() + "剩余HP:" + target.GetHp());
+        }
     }
 
     /// <summary>
@@ -80,6 +95,11 @@ public class Hero {
     /// <param name="target">攻击目标</param>
     public void Attack(Player target)
     {
+        // 扣除攻击次数
+        AttackCount--;
+        Debug.Log(this.GetName() + "的攻击力：" + Damage + ", 召唤师的HP:" + target.getHp());
+        target.AlterHP(-this.Damage);
+        Debug.Log("召唤师剩余HP:" + target.getHp());
 
     }
 
@@ -96,5 +116,20 @@ public class Hero {
     public int GetDamage()
     {
         return Damage;
+    }
+
+    /*
+     * 受到伤害值，扣除HP;
+     * 生命值为0则返回true，否则false
+     */ 
+    public bool ReduceHp(int damage)
+    {
+        this.HP -= damage;
+        if (this.HP < 0)
+        {
+            this.HP = 0;
+            return true;
+        }
+        return false;
     }
 }
